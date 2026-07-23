@@ -4,7 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Submission Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -64,6 +68,15 @@
         <div class="upload-preview" id="uploadPreview"></div>
       </div>
 
+      <div class="payment-box" id="paymentBox">
+        <p class="payment-title">Payment Details</p>
+        <p class="payment-line" id="paymentLine">Loading payment info...</p>
+        <div class="field">
+          <label for="paymentMsg">Paste M-Pesa Confirmation Message</label>
+          <textarea id="paymentMsg" name="paymentMsg" rows="3" placeholder="Paste the full SMS you received after paying" required></textarea>
+        </div>
+      </div>
+
       <button type="submit" class="btn-submit" id="submitBtn">Submit Entry</button>
       <p class="form-msg" id="formMsg"></p>
     </form>
@@ -72,10 +85,13 @@
     <section class="admin-card">
       <div class="admin-head">
         <h2>Submissions <span id="countBadge">(0)</span></h2>
-        <button id="clearBtn" class="btn-ghost">Clear All</button>
+        <div class="admin-btns">
+          <button id="refreshBtn" class="btn-ghost">Refresh</button>
+          <button id="clearBtn" class="btn-ghost btn-danger">Clear All</button>
+        </div>
       </div>
       <div id="submissionsList" class="submissions-list">
-        <p class="empty-note">No submissions yet.</p>
+        <p class="empty-note">Loading submissions...</p>
       </div>
     </section>
 
@@ -83,5 +99,4 @@
 
   <script src="script.js"></script>
 </body>
-  </html>
-  
+</html>
