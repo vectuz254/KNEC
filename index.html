@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Submission Portal</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="bg-glow"></div>
+
+  <main class="wrap">
+
+    <header class="header">
+      <h1>Submit Your Entry</h1>
+      <p class="sub">Fill in your details before the deadline closes.</p>
+    </header>
+
+    <!-- Countdown -->
+    <section class="timer-card" id="timerCard">
+      <p class="timer-label">Time remaining</p>
+      <div class="timer" id="timer">
+        <div class="unit"><span id="days">00</span><small>Days</small></div>
+        <div class="unit"><span id="hours">00</span><small>Hours</small></div>
+        <div class="unit"><span id="minutes">00</span><small>Mins</small></div>
+        <div class="unit"><span id="seconds">00</span><small>Secs</small></div>
+      </div>
+      <p class="deadline-text" id="deadlineText"></p>
+    </section>
+
+    <!-- Photo slider (showcase images of your choice) -->
+    <section class="slider-card">
+      <div class="slider" id="slider">
+        <div class="slider-track" id="sliderTrack">
+          <div class="slide placeholder">
+            <span>Add photos in script.js<br>(SHOWCASE_IMAGES array)</span>
+          </div>
+        </div>
+      </div>
+      <div class="slider-dots" id="sliderDots"></div>
+    </section>
+
+    <!-- Form -->
+    <form id="submitForm" class="form-card">
+      <div class="field">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" name="name" placeholder="e.g. Jane Wanjiru" required>
+      </div>
+
+      <div class="field">
+        <label for="index">Index Number</label>
+        <input type="text" id="index" name="index" placeholder="e.g. 2024/CS/0123" required>
+      </div>
+
+      <div class="field">
+        <label for="reason">Reason for Submitting</label>
+        <textarea id="reason" name="reason" rows="4" placeholder="Tell us why..." required></textarea>
+      </div>
+
+      <div class="field">
+        <label for="photos">Upload Photo(s)</label>
+        <input type="file" id="photos" name="photos" accept="image/*" multiple>
+        <div class="upload-preview" id="uploadPreview"></div>
+      </div>
+
+      <button type="submit" class="btn-submit" id="submitBtn">Submit Entry</button>
+      <p class="form-msg" id="formMsg"></p>
+    </form>
+
+    <!-- Submissions list (visible to you, the admin, on this device) -->
+    <section class="admin-card">
+      <div class="admin-head">
+        <h2>Submissions <span id="countBadge">(0)</span></h2>
+        <button id="clearBtn" class="btn-ghost">Clear All</button>
+      </div>
+      <div id="submissionsList" class="submissions-list">
+        <p class="empty-note">No submissions yet.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+  </html>
+  
