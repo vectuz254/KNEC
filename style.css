@@ -369,5 +369,4 @@ body {
 .submission-item .s-time { font-size: 0.7rem; color: var(--muted); margin-top: 8px; }
 .submission-item .s-del {
   background: none; border: none; color: var(--danger); font-size: 0.75rem; cursor: pointer; padding: 0;
-                                                                      }
-  
+}
