@@ -1,8 +1,31 @@
 /* =========================================================
-   1. SET YOUR DEADLINE HERE
+   1. SUPABASE SETUP — paste your project values here
+   Find these in Supabase Dashboard > Project Settings > API
+========================================================= */
+const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL"; // e.g. "https://xxxxxxxx.supabase.co"
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const TABLE = "submissions";
+const BUCKET = "submission-photos";
+
+/* =========================================================
+   2. SET YOUR DEADLINE HERE
    Format: "YYYY-MM-DDTHH:MM:SS"
 ========================================================= */
 const DEADLINE = new Date("2026-08-15T23:59:59");
+
+/* =========================================================
+   3. PAYMENT DETAILS — edit to match your Till/Paybill
+========================================================= */
+const PAYMENT_INFO = {
+  method: "M-Pesa",
+  till: "123456",          // your Till or Paybill number
+  accountLabel: "",        // account number, if using Paybill (leave "" for Till)
+  amount: "KES 200",
+  instructions:
+    "Go to M-Pesa > Lipa na M-Pesa > Buy Goods & Services\nTill Number: 123456\nAmount: KES 200\nThen paste the confirmation SMS below.",
+};
 
 /* =========================================================
    2. SHOWCASE PHOTOS (the slider at the top of the page)
@@ -112,21 +135,19 @@ function buildSlider() {
 /* =========================================================
    FORM: photo preview on upload
 ========================================================= */
-let selectedPhotos = []; // array of base64 strings for the current form fill
+let selectedFiles = []; // actual File objects, uploaded to Supabase Storage on submit
 
 function setupPhotoPreview() {
   const input = document.getElementById("photos");
   const preview = document.getElementById("uploadPreview");
 
   input.addEventListener("change", () => {
-    selectedPhotos = [];
+    selectedFiles = Array.from(input.files);
     preview.innerHTML = "";
-    const files = Array.from(input.files);
 
-    files.forEach((file) => {
+    selectedFiles.forEach((file) => {
       const reader = new FileReader();
       reader.onload = (e) => {
-        selectedPhotos.push(e.target.result);
         const img = document.createElement("img");
         img.src = e.target.result;
         preview.appendChild(img);
@@ -137,26 +158,59 @@ function setupPhotoPreview() {
 }
 
 /* =========================================================
-   SUBMISSIONS: save to localStorage, render list
+   PAYMENT INFO DISPLAY
 ========================================================= */
-const STORAGE_KEY = "student_submissions";
+function renderPaymentInfo() {
+  const line = document.getElementById("paymentLine");
+  line.textContent = PAYMENT_INFO.instructions;
+}
 
-function getSubmissions() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  } catch {
+/* =========================================================
+   UPLOAD PHOTOS TO SUPABASE STORAGE
+   Returns an array of public URLs
+========================================================= */
+async function uploadPhotosToStorage(files) {
+  const urls = [];
+  for (const file of files) {
+    const ext = file.name.split(".").pop();
+    const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
+    const { error: uploadError } = await supabaseClient.storage
+      .from(BUCKET)
+      .upload(path, file);
+
+    if (uploadError) {
+      console.error("Photo upload failed:", uploadError);
+      continue; // skip this photo but keep going with the rest
+    }
+
+    const { data } = supabaseClient.storage.from(BUCKET).getPublicUrl(path);
+    urls.push(data.publicUrl);
+  }
+  return urls;
+}
+
+/* =========================================================
+   SUBMISSIONS: stored in Supabase table, shared across devices
+========================================================= */
+async function fetchSubmissions() {
+  const { data, error } = await supabaseClient
+    .from(TABLE)
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Fetch failed:", error);
     return [];
   }
+  return data || [];
 }
 
-function saveSubmissions(list) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-}
-
-function renderSubmissions() {
-  const list = getSubmissions();
+async function renderSubmissions() {
   const wrap = document.getElementById("submissionsList");
   const badge = document.getElementById("countBadge");
+  const list = await fetchSubmissions();
+
   badge.textContent = `(${list.length})`;
 
   if (list.length === 0) {
@@ -165,37 +219,55 @@ function renderSubmissions() {
   }
 
   wrap.innerHTML = "";
-  list
-    .slice()
-    .reverse()
-    .forEach((entry) => {
-      const item = document.createElement("div");
-      item.className = "submission-item";
+  list.forEach((entry) => {
+    const item = document.createElement("div");
+    item.className = "submission-item";
 
-      const photosHtml = (entry.photos || [])
-        .map((p) => `<img src="${p}" alt="submitted photo">`)
-        .join("");
+    const photosHtml = (entry.photo_urls || [])
+      .map((p) => `<img src="${p}" alt="submitted photo">`)
+      .join("");
 
-      item.innerHTML = `
-        <div class="s-top">
-          <span class="s-name">${escapeHtml(entry.name)}</span>
-          <span class="s-index">${escapeHtml(entry.index)}</span>
-        </div>
-        <p class="s-reason">${escapeHtml(entry.reason)}</p>
-        <div class="s-photos">${photosHtml}</div>
-        <p class="s-time">Submitted: ${new Date(entry.time).toLocaleString()}
-          &nbsp;·&nbsp; <button class="s-del" data-id="${entry.id}">Delete</button>
-        </p>
-      `;
-      wrap.appendChild(item);
-    });
+    const verifiedBadge = entry.verified
+      ? '<span class="badge-verified">Verified ✓</span>'
+      : '<span class="badge-unverified">Unverified</span>';
+
+    const verifyBtn = entry.verified
+      ? ""
+      : `<button class="btn-verify" data-id="${entry.id}">Mark Verified</button>`;
+
+    item.innerHTML = `
+      <div class="s-top">
+        <span class="s-name">${escapeHtml(entry.name)}</span>
+        <span class="s-index">${escapeHtml(entry.index_number)}</span>
+      </div>
+      <p class="s-reason">${escapeHtml(entry.reason)}</p>
+      <div class="s-photos">${photosHtml}</div>
+      <p class="s-payment">${escapeHtml(entry.payment_message || "(no payment message)")}</p>
+      <div class="s-verify-row">
+        ${verifiedBadge}
+        ${verifyBtn}
+      </div>
+      <p class="s-time">Submitted: ${new Date(entry.created_at).toLocaleString()}
+        &nbsp;·&nbsp; <button class="s-del" data-id="${entry.id}">Delete</button>
+      </p>
+    `;
+    wrap.appendChild(item);
+  });
 
   // wire up delete buttons
   wrap.querySelectorAll(".s-del").forEach((btn) => {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", async () => {
       const id = btn.getAttribute("data-id");
-      const updated = getSubmissions().filter((e) => String(e.id) !== id);
-      saveSubmissions(updated);
+      await supabaseClient.from(TABLE).delete().eq("id", id);
+      renderSubmissions();
+    });
+  });
+
+  // wire up verify buttons
+  wrap.querySelectorAll(".btn-verify").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const id = btn.getAttribute("data-id");
+      await supabaseClient.from(TABLE).update({ verified: true }).eq("id", id);
       renderSubmissions();
     });
   });
@@ -213,8 +285,9 @@ function escapeHtml(str) {
 function setupForm() {
   const form = document.getElementById("submitForm");
   const msg = document.getElementById("formMsg");
+  const submitBtn = document.getElementById("submitBtn");
 
-  form.addEventListener("submit", (e) => {
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     if (new Date() > DEADLINE) {
@@ -224,40 +297,66 @@ function setupForm() {
     }
 
     const name = document.getElementById("name").value.trim();
-    const index = document.getElementById("index").value.trim();
+    const index_number = document.getElementById("index").value.trim();
     const reason = document.getElementById("reason").value.trim();
+    const payment_message = document.getElementById("paymentMsg").value.trim();
 
-    if (!name || !index || !reason) {
-      msg.textContent = "Please fill in all required fields.";
+    if (!name || !index_number || !reason || !payment_message) {
+      msg.textContent = "Please fill in all required fields, including the payment message.";
       msg.className = "form-msg error";
       return;
     }
 
-    const entry = {
-      id: Date.now(),
-      name,
-      index,
-      reason,
-      photos: selectedPhotos,
-      time: new Date().toISOString(),
-    };
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Submitting...";
+    msg.textContent = "";
+    msg.className = "form-msg";
 
-    const list = getSubmissions();
-    list.push(entry);
-    saveSubmissions(list);
-    renderSubmissions();
+    try {
+      const photo_urls = await uploadPhotosToStorage(selectedFiles);
 
-    form.reset();
-    document.getElementById("uploadPreview").innerHTML = "";
-    selectedPhotos = [];
+      const { error } = await supabaseClient.from(TABLE).insert([
+        {
+          name,
+          index_number,
+          reason,
+          payment_message,
+          photo_urls,
+          verified: false,
+        },
+      ]);
 
-    msg.textContent = "Submitted successfully. Thank you!";
-    msg.className = "form-msg success";
+      if (error) throw error;
+
+      form.reset();
+      document.getElementById("uploadPreview").innerHTML = "";
+      selectedFiles = [];
+
+      msg.textContent = "Submitted successfully. Thank you!";
+      msg.className = "form-msg success";
+
+      renderSubmissions();
+    } catch (err) {
+      console.error("Submit failed:", err);
+      msg.textContent = "Something went wrong submitting. Please try again.";
+      msg.className = "form-msg error";
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Submit Entry";
+    }
   });
 
-  document.getElementById("clearBtn").addEventListener("click", () => {
-    if (confirm("Clear all submissions? This cannot be undone.")) {
-      saveSubmissions([]);
+  document.getElementById("refreshBtn").addEventListener("click", () => {
+    renderSubmissions();
+  });
+
+  document.getElementById("clearBtn").addEventListener("click", async () => {
+    if (confirm("Clear ALL submissions for everyone? This cannot be undone.")) {
+      const list = await fetchSubmissions();
+      const ids = list.map((e) => e.id);
+      if (ids.length > 0) {
+        await supabaseClient.from(TABLE).delete().in("id", ids);
+      }
       renderSubmissions();
     }
   });
@@ -270,6 +369,8 @@ document.addEventListener("DOMContentLoaded", () => {
   startCountdown();
   buildSlider();
   setupPhotoPreview();
+  renderPaymentInfo();
   setupForm();
   renderSubmissions();
 });
+                                              
