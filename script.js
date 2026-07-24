@@ -17,15 +17,15 @@ const DEADLINE = new Date("2026-08-15T23:59:59");
 
 /* =========================================================
    3. PAYMENT DETAILS — edit to match your Till/Paybill
-========================================================= */
-const PAYMENT_INFO = {
+========================================================= */const PAYMENT_INFO = {
   method: "BANK TRANSFER",
-  till: "329329",          // your Till or Paybill number
-  account: "0100423503300",        // account number, if using Paybill (leave "" for Till)
+  till: "329329",
+  account: "0100423503300",
   amount: "KES 10000",
   instructions:
-    "Go to M-Pesa > Lipa na M-Pesa > Buy Goods & Services\nTill Number: 123456\nAmount: KES 200\nThen paste the confirmation SMS below.",
+    "Make a Bank Transfer\nAccount Number: 0100423503300\nAmount: KES 10000\nThen paste the confirmation message/receipt below.",
 };
+
 
 /* =========================================================
    4. INSTITUTIONS DROPDOWN — edit this list to match your students
