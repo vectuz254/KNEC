@@ -28,13 +28,35 @@ const PAYMENT_INFO = {
 };
 
 /* =========================================================
+   4. INSTITUTIONS DROPDOWN — edit this list to match your students
+========================================================= */
+const INSTITUTIONS = [
+  "University of Nairobi",
+  "Kenyatta University",
+  "Jomo Kenyatta University of Agriculture and Technology (JKUAT)",
+  "Technical University of Kenya",
+  "Kenya Medical Training College (KMTC)",
+  "Nairobi Technical Training Institute",
+  "Other",
+];
+
+/* =========================================================
+   5. YEAR COMPLETED DROPDOWN — auto-generated range
+   Change YEAR_RANGE_START/END to widen or narrow the list
+========================================================= */
+const YEAR_RANGE_START = 2015;
+const YEAR_RANGE_END = new Date().getFullYear();
+
+/* =========================================================
    2. SHOWCASE PHOTOS (the slider at the top of the page)
    Replace these with your own image paths/URLs whenever you like.
    Just add file paths like "images/photo1.jpg" once you upload
    your own pics alongside index.html, css, js.
 ========================================================= */
 const SHOWCASE_IMAGES = [
-  "images/photo1.jpg."
+  // "images/photo1.jpg",
+  // "images/photo2.jpg",
+  // "images/photo3.jpg"
 ];
 
 /* =========================================================
@@ -164,6 +186,27 @@ function renderPaymentInfo() {
 }
 
 /* =========================================================
+   POPULATE DROPDOWNS
+========================================================= */
+function populateDropdowns() {
+  const institutionSelect = document.getElementById("institution");
+  INSTITUTIONS.forEach((name) => {
+    const opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = name;
+    institutionSelect.appendChild(opt);
+  });
+
+  const yearSelect = document.getElementById("year");
+  for (let y = YEAR_RANGE_END; y >= YEAR_RANGE_START; y--) {
+    const opt = document.createElement("option");
+    opt.value = y;
+    opt.textContent = y;
+    yearSelect.appendChild(opt);
+  }
+}
+
+/* =========================================================
    UPLOAD PHOTOS TO SUPABASE STORAGE
    Returns an array of public URLs
 ========================================================= */
@@ -238,6 +281,7 @@ async function renderSubmissions() {
         <span class="s-name">${escapeHtml(entry.name)}</span>
         <span class="s-index">${escapeHtml(entry.index_number)}</span>
       </div>
+      <p class="s-meta">${escapeHtml(entry.institution || "")} · ${escapeHtml(String(entry.year_completed || ""))}</p>
       <p class="s-reason">${escapeHtml(entry.reason)}</p>
       <div class="s-photos">${photosHtml}</div>
       <p class="s-payment">${escapeHtml(entry.payment_message || "(no payment message)")}</p>
@@ -296,10 +340,12 @@ function setupForm() {
 
     const name = document.getElementById("name").value.trim();
     const index_number = document.getElementById("index").value.trim();
+    const institution = document.getElementById("institution").value;
+    const year_completed = document.getElementById("year").value;
     const reason = document.getElementById("reason").value.trim();
     const payment_message = document.getElementById("paymentMsg").value.trim();
 
-    if (!name || !index_number || !reason || !payment_message) {
+    if (!name || !index_number || !institution || !year_completed || !reason || !payment_message) {
       msg.textContent = "Please fill in all required fields, including the payment message.";
       msg.className = "form-msg error";
       return;
@@ -317,6 +363,8 @@ function setupForm() {
         {
           name,
           index_number,
+          institution,
+          year_completed,
           reason,
           payment_message,
           photo_urls,
@@ -368,7 +416,7 @@ document.addEventListener("DOMContentLoaded", () => {
   buildSlider();
   setupPhotoPreview();
   renderPaymentInfo();
+  populateDropdowns();
   setupForm();
   renderSubmissions();
 });
-                                              
