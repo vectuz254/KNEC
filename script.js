@@ -1,3 +1,4 @@
+
 /* =========================================================
    1. SUPABASE SETUP — paste your project values here
    Find these in Supabase Dashboard > Project Settings > API
@@ -5,7 +6,12 @@
 const SUPABASE_URL = "https://gawibgxqkwlmkgdekoeg.supabase.co"; // e.g. "https://xxxxxxxx.supabase.co"
 const SUPABASE_ANON_KEY = "sb_publishable_7vk7zrHnFqDuHoNL8_pz7w_t6RDV0Dl";
 
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let supabaseClient = null;
+try {
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+} catch (err) {
+  console.error("Supabase failed to initialize:", err);
+}
 const TABLE = "submissions";
 const BUCKET = "submission-photos";
 
@@ -17,15 +23,15 @@ const DEADLINE = new Date("2026-08-15T23:59:59");
 
 /* =========================================================
    3. PAYMENT DETAILS — edit to match your Till/Paybill
-========================================================= */const PAYMENT_INFO = {
-  method: "BANK TRANSFER",
-  till: "329329",
-  account: "0100423503300",
+========================================================= */
+const PAYMENT_INFO = {
+  method: "BANK TRANSFER BS NO 329329",
+  ACCOUNTNUMBER: "01000423503300",          // your Till or Paybill number
+  accountLabel: "",        // account number, if using Paybill (leave "" for Till)
   amount: "KES 10000",
   instructions:
-    "Make a Bank Transfer\nAccount Number: 0100423503300\nAmount: KES 10000\nThen paste the confirmation message/receipt below.",
+    "Go to M-Pesa > Lipa na M-Pesa > Buy Goods & Services\nTill Number: 123456\nAmount: KES 200\nThen paste the confirmation SMS below.",
 };
-
 
 /* =========================================================
    4. INSTITUTIONS DROPDOWN — edit this list to match your students
@@ -40,8 +46,7 @@ const INSTITUTIONS = [
    "Kabete National Polytechnic",
     "Jeremiah Nyagah National Polytechnic",
     "Kisumu National Polytechnic",
-   
-  "Other",
+     "Other",
 ];
 
 /* =========================================================
@@ -58,7 +63,7 @@ const YEAR_RANGE_END = new Date().getFullYear();
    your own pics alongside index.html, css, js.
 ========================================================= */
 const SHOWCASE_IMAGES = [
-   "images/photo1.jpg",
+  // "images/photo1.jpg",
   // "images/photo2.jpg",
   // "images/photo3.jpg"
 ];
@@ -215,6 +220,11 @@ function populateDropdowns() {
    Returns an array of public URLs
 ========================================================= */
 async function uploadPhotosToStorage(files) {
+  if (!supabaseClient) {
+    console.error("Supabase is not connected — cannot upload photos.");
+    return [];
+  }
+
   const urls = [];
   for (const file of files) {
     const ext = file.name.split(".").pop();
@@ -239,6 +249,11 @@ async function uploadPhotosToStorage(files) {
    SUBMISSIONS: stored in Supabase table, shared across devices
 ========================================================= */
 async function fetchSubmissions() {
+  if (!supabaseClient) {
+    console.error("Supabase is not connected — check SUPABASE_URL/SUPABASE_ANON_KEY.");
+    return [];
+  }
+
   const { data, error } = await supabaseClient
     .from(TABLE)
     .select("*")
@@ -342,6 +357,12 @@ function setupForm() {
       return;
     }
 
+    if (!supabaseClient) {
+      msg.textContent = "The site can't connect right now. Please try again shortly.";
+      msg.className = "form-msg error";
+      return;
+    }
+
     const name = document.getElementById("name").value.trim();
     const index_number = document.getElementById("index").value.trim();
     const institution = document.getElementById("institution").value;
@@ -416,11 +437,25 @@ function setupForm() {
    INIT
 ========================================================= */
 document.addEventListener("DOMContentLoaded", () => {
-  startCountdown();
-  buildSlider();
-  setupPhotoPreview();
-  renderPaymentInfo();
-  populateDropdowns();
-  setupForm();
-  renderSubmissions();
+  safeRun(startCountdown, "countdown timer");
+  safeRun(buildSlider, "photo slider");
+  safeRun(setupPhotoPreview, "photo upload preview");
+  safeRun(renderPaymentInfo, "payment info");
+  safeRun(populateDropdowns, "institution/year dropdowns");
+  safeRun(setupForm, "form submit handler");
+  safeRun(renderSubmissions, "submissions list");
 });
+
+function safeRun(fn, label) {
+  try {
+    const result = fn();
+    if (result && typeof result.catch === "function") {
+      result.catch((err) => console.error(`Error in ${label}:`, err));
+    }
+  } catch (err) {
+    console.error(`Error in ${label}:`, err);
+  }
+}
+
+
+
