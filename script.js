@@ -62,7 +62,7 @@ const YEAR_RANGE_END = new Date().getFullYear();
    your own pics alongside index.html, css, js.
 ========================================================= */
 const SHOWCASE_IMAGES = [
-  // "images/photo1.jpg",
+   "images/photo1.jpg",
   // "images/photo2.jpg",
   // "images/photo3.jpg"
 ];
