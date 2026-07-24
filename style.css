@@ -178,7 +178,8 @@ body {
   margin-bottom: 6px;
 }
 .field input[type="text"],
-.field textarea {
+.field textarea,
+.field select {
   width: 100%;
   padding: 11px 12px;
   border: 1px solid var(--border);
@@ -190,8 +191,18 @@ body {
   resize: vertical;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
+.field select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231E9E6E' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 36px;
+}
 .field input[type="text"]:focus,
-.field textarea:focus {
+.field textarea:focus,
+.field select:focus {
   outline: none;
   border-color: var(--green);
   box-shadow: 0 0 0 3px rgba(30,158,110,0.12);
@@ -362,6 +373,7 @@ body {
 .submission-item .s-name { font-weight: 700; color: var(--text); }
 .submission-item .s-index { font-size: 0.75rem; color: var(--green-dark); background: var(--green-light); padding: 2px 8px; border-radius: 6px; }
 .submission-item .s-reason { font-size: 0.85rem; color: var(--muted); margin: 6px 0 8px; }
+.submission-item .s-meta { font-size: 0.75rem; color: var(--green-dark); margin: 6px 0 0; font-weight: 600; }
 .submission-item .s-photos { display: flex; gap: 6px; flex-wrap: wrap; }
 .submission-item .s-photos img {
   width: 48px; height: 48px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border);
