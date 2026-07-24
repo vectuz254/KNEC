@@ -2,8 +2,8 @@
    1. SUPABASE SETUP — paste your project values here
    Find these in Supabase Dashboard > Project Settings > API
 ========================================================= */
-const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL"; // e.g. "https://xxxxxxxx.supabase.co"
-const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+const SUPABASE_URL = "https://gawibgxqkwlmkgdekoeg.supabase.co"; // e.g. "https://xxxxxxxx.supabase.co"
+const SUPABASE_ANON_KEY = "sb_publishable_7vk7zrHnFqDuHoNL8_pz7w_t6RDV0Dl";
 
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const TABLE = "submissions";
