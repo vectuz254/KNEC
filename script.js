@@ -31,10 +31,10 @@ const PAYMENT_INFO = {
    4. INSTITUTIONS DROPDOWN — edit this list to match your students
 ========================================================= */
 const INSTITUTIONS = [
-  "University of Nairobi",
-  "Kenyatta University",
-  "Jomo Kenyatta University of Agriculture and Technology (JKUAT)",
-  "Technical University of Kenya",
+  "Kiambu Institute of Science and Technology",
+  "Railways Training Institute",
+  "Kenya Institute of Highways and Building Technology",
+  "The Nairobi National Polytechnic",
   "Kenya Medical Training College (KMTC)",
   "Nairobi Technical Training Institute",
   "Other",
