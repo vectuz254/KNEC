@@ -27,7 +27,6 @@ const DEADLINE = new Date("2026-08-15T23:59:59");
 const PAYMENT_INFO = {
   method: "BANK TRANSFER BS NO 329329",
   ACCOUNTNUMBER: "01000423503300",          // your Till or Paybill number
-  accountLabel: "",        // account number, if using Paybill (leave "" for Till)
   amount: "KES 10000",
   instructions:
     "Go to M-Pesa > Lipa na M-Pesa > Buy Goods & Services\nTill Number: 123456\nAmount: KES 200\nThen paste the confirmation SMS below.",
