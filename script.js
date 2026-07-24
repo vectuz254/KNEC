@@ -20,7 +20,8 @@ const DEADLINE = new Date("2026-08-15T23:59:59");
 ========================================================= */const PAYMENT_INFO = {
   method: "BANK TRANSFER",
   till: "329329",
-  account: "0100423503300",
+  account: "business number 329329
+     AC NO 0100423503300",
   amount: "KES 10000",
   instructions:
     "Make a Bank Transfer\nAccount Number: 0100423503300\nAmount: KES 10000\nThen paste the confirmation message/receipt below.",
