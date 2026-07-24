@@ -34,7 +34,7 @@ const PAYMENT_INFO = {
    your own pics alongside index.html, css, js.
 ========================================================= */
 const SHOWCASE_IMAGES = [
-  "images/photo1.jpg.jpeg"
+  "images/photo1.jpg."
 ];
 
 /* =========================================================
