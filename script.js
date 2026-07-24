@@ -37,6 +37,10 @@ const INSTITUTIONS = [
   "The Nairobi National Polytechnic",
   "Kenya Medical Training College (KMTC)",
   "Nairobi Technical Training Institute",
+   "Kabete National Polytechnic",
+    "Jeremiah Nyagah National Polytechnic",
+    "Kisumu National Polytechnic",
+   
   "Other",
 ];
 
