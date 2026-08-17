@@ -59,7 +59,7 @@ const BUCKET = "submission-photos";
    4. Once the deadline passes, the form auto-disables itself
       (see disableForm()) and shows "Submissions are now closed."
 ========================================================= */
-const DEADLINE = new Date("2026-08-15T23:59:59");
+const DEADLINE = new Date("2026-08-17T15:59:59");
 
 /* =========================================================
    3. INSTITUTIONS DROPDOWN — edit this list to match your students
